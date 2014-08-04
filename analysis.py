@@ -1,4 +1,4 @@
-from collections import Counter, namedtuple
+from collections import defaultdict, Counter, namedtuple
 from itertools import chain, islice, tee
 import random
 import re
@@ -58,33 +58,16 @@ def weighted_choice(counter):
     return nth(counter.elements(), random.randrange(sum(counter.values())))
 
 
-def count_transitions(iterable):
-    """Return a Counter of consecutive pairs of elements in iterable."""
-    return Counter(pairwise(iterable))
-
-
-def extract_transitions(transition_counts, start):
-    """Return a Counter of transition end values from the given start value."""
-    return Counter({b: count for (a, b), count in transition_counts.items()
-                    if a == start})
-
-
-def map_transitions(transition_counts):
-    """Return a dict mapping start values to Counters of their end values."""
-    start_values = {start for start, end in transition_counts}
-    return {start: extract_transitions(transition_counts, start)
-            for start in start_values}
-
-
-def analyze_word(word):
-    """Apply count_transitions and map_transitions to the given word."""
-    return map_transitions(count_transitions(pad(split(word))))
-
-
 def analyze_words(words):
-    """Apply map_transitions to the given words."""
-    transitions = (pairwise(pad(split(word))) for word in words)
-    return map_transitions(Counter(chain(*transitions)))
+    """Split up the words and count the numbers of transitions between pieces.
+
+    Returns a dict mapping word pieces to Counters of subsequent word pieces.
+    """
+    transitions = defaultdict(Counter)
+    for word in words:
+        for start, end in pairwise(pad(split(word))):
+            transitions[start][end] += 1
+    return transitions
 
 
 def make_word(transitions):
