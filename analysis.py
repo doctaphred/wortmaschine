@@ -1,5 +1,5 @@
 from collections import Counter, namedtuple
-from itertools import islice, tee
+from itertools import chain, islice, tee
 import random
 import re
 
@@ -82,11 +82,9 @@ def analyze_word(word):
 
 
 def analyze_words(words):
-    """Apply count_transitions and map_transitions to the given words."""
-    transitions = Counter()
-    for word in words:
-        transitions.update(pairwise(pad(split(word))))
-    return map_transitions(transitions)
+    """Apply map_transitions to the given words."""
+    transitions = (pairwise(pad(split(word))) for word in words)
+    return map_transitions(Counter(chain(*transitions)))
 
 
 def make_word(transitions):
