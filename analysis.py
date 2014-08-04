@@ -83,10 +83,9 @@ def analyze_word(word):
 
 def analyze_words(words):
     """Apply count_transitions and map_transitions to the given words."""
-    # transitions = sum(count_transitions(pad(split(word))) for word in words)
     transitions = Counter()
     for word in words:
-        transitions += count_transitions(pad(split(word)))
+        transitions.update(pairwise(pad(split(word))))
     return map_transitions(transitions)
 
 
